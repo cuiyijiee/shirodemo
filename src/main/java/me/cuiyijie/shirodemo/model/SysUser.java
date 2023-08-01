@@ -7,10 +7,8 @@ import lombok.Data;
  * @Date: 2021/9/28 11:35
  */
 @Data
-public class Account {
+public class SysUser {
     private Integer id;
     private String username;
     private String password;
-    private String perms;
-    private String role;
 }

@@ -1,8 +1,8 @@
 package me.cuiyijie.shirodemo.auth;
 
 import lombok.extern.slf4j.Slf4j;
-import me.cuiyijie.shirodemo.model.Account;
-import me.cuiyijie.shirodemo.service.AccountService;
+import me.cuiyijie.shirodemo.model.SysUser;
+import me.cuiyijie.shirodemo.service.SysUserService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -23,18 +23,16 @@ import java.util.Set;
 public class JwtRealm extends AuthorizingRealm {
 
     @Autowired
-    private AccountService accountService;
+    private SysUserService sysUserService;
 
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
         log.info("==========doGetAuthorizationInfo:获取用户权限");
         Subject subject = SecurityUtils.getSubject();
-        Account account = (Account) subject.getPrincipal();
-
+        SysUser sysUser = (SysUser) subject.getPrincipal();
         Set<String> roles = new HashSet<>();
-        roles.add(account.getRole());
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo(roles);
-        info.addStringPermission(account.getPerms());
+        info.addStringPermission("");
         return info;
     }
 
@@ -52,7 +50,7 @@ public class JwtRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
-        log.info("==========doGetAuthorizationInfo:获取用户认证");
+        log.info("==========doGetAuthenticationInfo:获取用户认证");
         String jwtTokenStr = (String) authenticationToken.getPrincipal();
         if (jwtTokenStr == null) {
             throw new NullPointerException("X-TOKEN不能为空");
@@ -63,8 +61,9 @@ public class JwtRealm extends AuthorizingRealm {
         }
         String username = (String) jwtUtil.decode(jwtTokenStr).get("username");
         log.info("在使用token登录" + username);
+        SysUser sysUser = sysUserService.findByUserName(username);
         //这里返回的是类似账号密码的东西，但是jwtToken都是jwt字符串。还需要一个该Realm的类名
-        return new SimpleAuthenticationInfo(jwtTokenStr, jwtTokenStr, "JwtRealm");
+        return new SimpleAuthenticationInfo(sysUser, jwtTokenStr, "JwtRealm");
     }
 
     @Override

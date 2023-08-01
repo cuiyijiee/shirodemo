@@ -1,7 +1,9 @@
 package me.cuiyijie.shirodemo.auth;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.web.filter.AccessControlFilter;
+import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -14,11 +16,17 @@ import java.io.IOException;
  * @Date: 2023/7/28 15:16
  */
 @Slf4j
-public class JwtFilter extends AccessControlFilter {
+public class JwtFilter extends AuthenticatingFilter {
 
 
     @Override
-    protected boolean isAccessAllowed(ServletRequest servletRequest, ServletResponse servletResponse, Object o) throws Exception {
+    protected AuthenticationToken createToken(ServletRequest servletRequest, ServletResponse servletResponse) {
+        String token = ((HttpServletRequest) servletRequest).getHeader("X-TOKEN");
+        return new JwtToken(token);
+    }
+
+    @Override
+    protected boolean isAccessAllowed(ServletRequest servletRequest, ServletResponse servletResponse, Object o) {
         //这里先让它始终返回false来使用onAccessDenied()方法
         log.info("isAccessAllowed 方法被调用");
         return false;
@@ -38,7 +46,7 @@ public class JwtFilter extends AccessControlFilter {
             onLoginFail(servletResponse);
             return false;
         }
-        return true;
+        return executeLogin(servletRequest, servletResponse);
     }
 
     //登录失败时默认返回 401 状态码

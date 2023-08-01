@@ -1,13 +1,14 @@
 package me.cuiyijie.shirodemo.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import me.cuiyijie.shirodemo.model.Account;
+import me.cuiyijie.shirodemo.model.SysRole;
 import org.springframework.stereotype.Repository;
 
 /**
  * @Author: yjcui3
- * @Date: 2021/9/28 11:35
+ * @Date: 2023/8/1 19:22
  */
 @Repository
-public interface AccountMapper extends BaseMapper<Account> {
+public interface SysRoleMapper extends BaseMapper<SysRole> {
+
 }

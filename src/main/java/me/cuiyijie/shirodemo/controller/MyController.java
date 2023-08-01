@@ -2,6 +2,10 @@ package me.cuiyijie.shirodemo.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import me.cuiyijie.shirodemo.auth.JwtUtil;
+import me.cuiyijie.shirodemo.model.SysUser;
+import me.cuiyijie.shirodemo.service.SysUserService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,13 +21,17 @@ import java.util.Map;
 @RestController
 public class MyController {
 
+    @Autowired
+    private SysUserService sysUserService;
+
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestParam("username") String username,
                                                      @RequestParam("password") String password) {
         log.info("username:{},password:{}", username, password);
+        SysUser sysUser = sysUserService.findByUserName(username);
         Map<String, String> map = new HashMap<>();
-        if (!"tom".equals(username) || !"123".equals(password)) {
-            map.put("msg", "用户名密码错误");
+        if (sysUser == null || !password.equals(sysUser.getPassword())) {
+            map.put("msg", "用户不存在或密码错误!");
             return ResponseEntity.ok(map);
         }
         JwtUtil jwtUtil = new JwtUtil();
@@ -38,5 +46,11 @@ public class MyController {
     @RequestMapping("/testdemo")
     public ResponseEntity<String> testdemo() {
         return ResponseEntity.ok("我爱蛋炒饭");
+    }
+
+    @RequiresPermissions("test")
+    @RequestMapping("/testpermission")
+    public ResponseEntity<String> testpermission() {
+        return ResponseEntity.ok("我爱蛋炒饭带权限");
     }
 }

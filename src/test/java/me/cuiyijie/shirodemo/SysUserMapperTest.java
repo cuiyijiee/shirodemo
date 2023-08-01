@@ -1,7 +1,7 @@
 package me.cuiyijie.shirodemo;
 
-import me.cuiyijie.shirodemo.model.Account;
-import me.cuiyijie.shirodemo.service.AccountService;
+import me.cuiyijie.shirodemo.model.SysUser;
+import me.cuiyijie.shirodemo.service.SysUserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,14 +11,14 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @Date: 2021/9/28 11:35
  */
 @SpringBootTest
-class AccountMapperTest {
+class SysUserMapperTest {
 
     @Autowired
-    private AccountService accountService;
+    private SysUserService accountService;
 
     @Test
     void test(){
-        Account account = accountService.findByUserName("ww");
-        System.out.println(account);
+        SysUser sysUser = accountService.findByUserName("ww");
+        System.out.println(sysUser);
     }
 }

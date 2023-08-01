@@ -21,7 +21,7 @@ import java.util.UUID;
 public class JwtUtil {
 
     //创建默认的秘钥和算法，供无参的构造方法使用
-    private static final String DEFAULT_BASE_64_ENCODED_SECRET_KEY = "badbabe";
+    private static final String DEFAULT_BASE_64_ENCODED_SECRET_KEY = "joyea_yyds";
     private static final SignatureAlgorithm DEFAULT_SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
 
     public JwtUtil() {
