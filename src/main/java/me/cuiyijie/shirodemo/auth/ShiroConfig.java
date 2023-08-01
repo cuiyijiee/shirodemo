@@ -1,5 +1,6 @@
 package me.cuiyijie.shirodemo.auth;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
 import org.apache.shiro.mgt.DefaultSubjectDAO;

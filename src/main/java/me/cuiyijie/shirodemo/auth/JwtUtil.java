@@ -7,7 +7,9 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -18,6 +20,8 @@ import java.util.UUID;
  * @Author: yjcui3
  * @Date: 2023/7/28 15:10
  */
+@Slf4j
+@Component
 public class JwtUtil {
 
     //创建默认的秘钥和算法，供无参的构造方法使用
@@ -98,6 +102,13 @@ public class JwtUtil {
                 .getBody();
     }
 
+    /**
+     * token是否过期
+     * @return  true：过期
+     */
+    public boolean isTokenExpired(Date expiration) {
+        return expiration.before(new Date());
+    }
 
     /**
      * 校验 token
@@ -107,16 +118,21 @@ public class JwtUtil {
      * @param jwtToken 被校验的 jwt Token
      */
     public boolean isVerify(String jwtToken) {
-        Algorithm algorithm = null;
-        switch (signatureAlgorithm) {
-            case HS256:
-                algorithm = Algorithm.HMAC256(Base64.decodeBase64(base64EncodedSecretKey));
-                break;
-            default:
-                throw new RuntimeException("不支持该算法");
+        try {
+            Algorithm algorithm = null;
+            switch (signatureAlgorithm) {
+                case HS256:
+                    algorithm = Algorithm.HMAC256(Base64.decodeBase64(base64EncodedSecretKey));
+                    break;
+                default:
+                    throw new RuntimeException("不支持该算法");
+            }
+            JWTVerifier verifier = JWT.require(algorithm).build();
+            verifier.verify(jwtToken);  // 校验不通过会抛出异常
+        } catch (Exception exception) {
+            log.error("校验token发生错误:", exception);
+            return false;
         }
-        JWTVerifier verifier = JWT.require(algorithm).build();
-        verifier.verify(jwtToken);  // 校验不通过会抛出异常
         return true;
     }
 }

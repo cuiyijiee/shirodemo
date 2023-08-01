@@ -25,6 +25,9 @@ public class JwtRealm extends AuthorizingRealm {
     @Autowired
     private SysUserService sysUserService;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
         log.info("==========doGetAuthorizationInfo:获取用户权限");
@@ -55,13 +58,12 @@ public class JwtRealm extends AuthorizingRealm {
         if (jwtTokenStr == null) {
             throw new NullPointerException("X-TOKEN不能为空");
         }
-        JwtUtil jwtUtil = new JwtUtil();
         if (!jwtUtil.isVerify(jwtTokenStr)) {
             throw new UnknownAccountException();
         }
-        String username = (String) jwtUtil.decode(jwtTokenStr).get("username");
-        log.info("在使用token登录" + username);
-        SysUser sysUser = sysUserService.findByUserName(username);
+        int userId = (Integer) jwtUtil.decode(jwtTokenStr).get("userId");
+        log.info("在使用token登录" + userId);
+        SysUser sysUser = sysUserService.getById(userId);
         //这里返回的是类似账号密码的东西，但是jwtToken都是jwt字符串。还需要一个该Realm的类名
         return new SimpleAuthenticationInfo(sysUser, jwtTokenStr, "JwtRealm");
     }

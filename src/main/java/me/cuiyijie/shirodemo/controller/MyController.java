@@ -1,13 +1,17 @@
 package me.cuiyijie.shirodemo.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import me.cuiyijie.shirodemo.annotation.LoginUser;
 import me.cuiyijie.shirodemo.auth.JwtUtil;
 import me.cuiyijie.shirodemo.model.SysUser;
 import me.cuiyijie.shirodemo.service.SysUserService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,15 +40,16 @@ public class MyController {
         }
         JwtUtil jwtUtil = new JwtUtil();
         Map<String, Object> chaim = new HashMap<>();
-        chaim.put("username", username);
-        String jwtToken = jwtUtil.encode(username, 5 * 60 * 1000, chaim);
+        chaim.put("userId", sysUser.getId());
+        String jwtToken = jwtUtil.encode(String.valueOf(sysUser.getId()), 5 * 60 * 1000, chaim);
         map.put("msg", "登录成功");
         map.put("token", jwtToken);
         return ResponseEntity.ok(map);
     }
 
     @RequestMapping("/testdemo")
-    public ResponseEntity<String> testdemo() {
+    public ResponseEntity<String> testdemo(@LoginUser SysUser sysUser) {
+        log.info("get user info: " + sysUser);
         return ResponseEntity.ok("我爱蛋炒饭");
     }
 

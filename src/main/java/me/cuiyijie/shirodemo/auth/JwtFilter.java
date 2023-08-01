@@ -1,9 +1,15 @@
 package me.cuiyijie.shirodemo.auth;
 
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import me.cuiyijie.shirodemo.utils.HttpContextUtils;
+import me.cuiyijie.shirodemo.utils.R;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.web.filter.AccessControlFilter;
 import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -18,18 +24,25 @@ import java.io.IOException;
 @Slf4j
 public class JwtFilter extends AuthenticatingFilter {
 
-
     @Override
     protected AuthenticationToken createToken(ServletRequest servletRequest, ServletResponse servletResponse) {
         String token = ((HttpServletRequest) servletRequest).getHeader("X-TOKEN");
         return new JwtToken(token);
     }
 
+    /**
+     * 判断用户是否已经登录，如果是options的请求则放行，否则进行调用onAccessDenied进行token认证流程
+     *
+     * @param servletRequest
+     * @param servletResponse
+     * @param mappedValue
+     * @return
+     */
     @Override
-    protected boolean isAccessAllowed(ServletRequest servletRequest, ServletResponse servletResponse, Object o) {
+    protected boolean isAccessAllowed(ServletRequest servletRequest, ServletResponse servletResponse, Object mappedValue) {
         //这里先让它始终返回false来使用onAccessDenied()方法
         log.info("isAccessAllowed 方法被调用");
-        return false;
+        return ((HttpServletRequest) servletRequest).getMethod().equals(RequestMethod.OPTIONS.name());
     }
 
     @Override
@@ -37,6 +50,14 @@ public class JwtFilter extends AuthenticatingFilter {
         log.info("onAccessDenied 方法被调用");
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         String jwtTokenStr = httpServletRequest.getHeader("X-TOKEN");
+        if (StringUtils.isBlank(jwtTokenStr)) {
+            HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
+            httpResponse.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(R.error("invalid token"));
+            httpResponse.getWriter().print(json);
+            return false;
+        }
         log.info("获取到请求头中的jwt token：{}", jwtTokenStr);
         JwtToken jwtToken = new JwtToken(jwtTokenStr);
         try {
