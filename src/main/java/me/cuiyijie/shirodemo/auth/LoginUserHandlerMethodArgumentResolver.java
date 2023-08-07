@@ -1,6 +1,7 @@
 package me.cuiyijie.shirodemo.auth;
 
 import me.cuiyijie.shirodemo.annotation.LoginUser;
+import me.cuiyijie.shirodemo.constants.SysConstants;
 import me.cuiyijie.shirodemo.model.SysUser;
 import me.cuiyijie.shirodemo.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ public class LoginUserHandlerMethodArgumentResolver implements HandlerMethodArgu
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         //获取用户ID
-        Object object = webRequest.getAttribute(AuthorizationInterceptor.USER_KEY, RequestAttributes.SCOPE_REQUEST);
+        Object object = webRequest.getAttribute(SysConstants.AUTH_LOGIN_USER_ID, RequestAttributes.SCOPE_REQUEST);
         if (object == null) {
             return null;
         }

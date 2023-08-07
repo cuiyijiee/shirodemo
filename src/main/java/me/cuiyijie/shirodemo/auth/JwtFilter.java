@@ -3,6 +3,7 @@ package me.cuiyijie.shirodemo.auth;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import me.cuiyijie.shirodemo.constants.SysConstants;
 import me.cuiyijie.shirodemo.utils.HttpContextUtils;
 import me.cuiyijie.shirodemo.utils.R;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -26,7 +27,7 @@ public class JwtFilter extends AuthenticatingFilter {
 
     @Override
     protected AuthenticationToken createToken(ServletRequest servletRequest, ServletResponse servletResponse) {
-        String token = ((HttpServletRequest) servletRequest).getHeader("X-TOKEN");
+        String token = ((HttpServletRequest) servletRequest).getHeader(SysConstants.AUTH_HEADER_KEY);
         return new JwtToken(token);
     }
 
@@ -49,7 +50,7 @@ public class JwtFilter extends AuthenticatingFilter {
     protected boolean onAccessDenied(ServletRequest servletRequest, ServletResponse servletResponse) throws Exception {
         log.info("onAccessDenied 方法被调用");
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
-        String jwtTokenStr = httpServletRequest.getHeader("X-TOKEN");
+        String jwtTokenStr = httpServletRequest.getHeader(SysConstants.AUTH_HEADER_KEY);
         if (StringUtils.isBlank(jwtTokenStr)) {
             HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
             httpResponse.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
